@@ -135,4 +135,54 @@ public class Encryptor
         }
         return originalMessage;
     }
+
+    public String superEncryptMessage(String message) {
+        String encryptedMessage = "";
+        int encryptNum = (message.length() / (numCols * numRows));
+        for (int i = 0; i < encryptNum; i++) {
+            fillBlock(message);
+
+            //Shift Rows down 1
+            String[] tempRow = letterBlock[0];
+            for (int row = 0; row < numRows; row++) {
+                if (letterBlock.length > 1) {
+                    tempRow = letterBlock[row+1];
+                }
+                if (row++ == numRows) {
+                    letterBlock[0] = tempRow;
+                }
+                else {
+                    letterBlock[row+1] = tempRow;
+                }
+            }
+
+            //Shift Columns right 1
+            String[] tempCol = new String[numRows];
+            for (int row = 0; row < numRows; row++) {
+                tempCol[row] = letterBlock[row][0];
+            }
+            for (int row = 0; row < numRows; row++) {
+                if (letterBlock.length > 1) {
+                    tempRow = letterBlock[row+1];
+                }
+                if (row++ == numRows) {
+                    letterBlock[0] = tempRow;
+                }
+                else {
+                    letterBlock[row+1] = tempRow;
+                }
+            }
+
+            encryptedMessage += encryptBlock();
+            message = message.substring(numRows * numCols);
+        }
+        if (message.length() != 0) {
+            fillBlock(message);
+            encryptedMessage += encryptBlock();
+        }
+    }
+
+    public String superDecrpytMessage(String message) {
+
+    }
 }

@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Encryptor
 {
     /** A two-dimensional array of single-character strings, instantiated in the constructor */
@@ -26,7 +28,7 @@ public class Encryptor
      *
      *   @param str  the string to be processed
      *
-     *   Postcondition:
+     *   Post-condition:
      *     if str.length() < numRows * numCols, "A" in each unfilled cell
      *     if str.length() > numRows * numCols, trailing characters are ignored
      */
@@ -139,50 +141,59 @@ public class Encryptor
     public String superEncryptMessage(String message) {
         String encryptedMessage = "";
         int encryptNum = (message.length() / (numCols * numRows));
+        if (encryptNum * (numCols * numRows) < message.length()) {
+            encryptNum++;
+        }
+
         for (int i = 0; i < encryptNum; i++) {
             fillBlock(message);
 
             //Shift Rows down 1
-            String[] tempRow = letterBlock[0];
-            for (int row = 0; row < numRows; row++) {
-                if (letterBlock.length > 1) {
-                    tempRow = letterBlock[row+1];
-                }
-                if (row++ == numRows) {
-                    letterBlock[0] = tempRow;
-                }
-                else {
-                    letterBlock[row+1] = tempRow;
+            String[] lastRow = letterBlock[numRows-1];
+            for (int row = numRows-1; row > 0; row--) {
+                for (int col = 0; col < numCols; col++) {
+                   letterBlock[row][col] = letterBlock[row-1][col];
                 }
             }
-
+            letterBlock[0] = lastRow;
+            /*
             //Shift Columns right 1
             String[] tempCol = new String[numRows];
             for (int row = 0; row < numRows; row++) {
                 tempCol[row] = letterBlock[row][0];
             }
-            for (int row = 0; row < numRows; row++) {
-                if (letterBlock.length > 1) {
-                    tempRow = letterBlock[row+1];
+            for (int col = 0; col < numRows; col++) {
+                if (letterBlock[0].length > 1) {
+                    tempRow = new String[numRows];
+                    for (int row = 0; row < numRows; row++) {
+                        tempCol[row] = letterBlock
+                    }
                 }
-                if (row++ == numRows) {
-                    letterBlock[0] = tempRow;
+                if (col++ == numCols) {
+                    int a = 0;
+                    for (String letter : tempCol) {
+                        letterBlock[a][0] = tempCol[a];
+                    }
                 }
                 else {
-                    letterBlock[row+1] = tempRow;
+                    int a = 0;
+                    for (String letter : tempCol) {
+                        letterBlock[a][col] = tempCol[a];
+                    }
                 }
             }
+*/
 
             encryptedMessage += encryptBlock();
-            message = message.substring(numRows * numCols);
+            if (message.length() > numRows * numCols) {
+                message = message.substring(numRows * numCols);
+            }
         }
-        if (message.length() != 0) {
-            fillBlock(message);
-            encryptedMessage += encryptBlock();
-        }
+        return encryptedMessage;
+
     }
 
-    public String superDecrpytMessage(String message) {
-
+    public String superDecryptMessage(String message) {
+        return"";
     }
 }

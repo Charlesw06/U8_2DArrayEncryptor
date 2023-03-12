@@ -144,45 +144,32 @@ public class Encryptor
         if (encryptNum * (numCols * numRows) < message.length()) {
             encryptNum++;
         }
-
         for (int i = 0; i < encryptNum; i++) {
             fillBlock(message);
 
             //Shift Rows down 1
-            String[] lastRow = letterBlock[numRows-1];
+            String[] lastRowCopy = Arrays.copyOf(letterBlock[numRows-1], numCols);
             for (int row = numRows-1; row > 0; row--) {
                 for (int col = 0; col < numCols; col++) {
                    letterBlock[row][col] = letterBlock[row-1][col];
                 }
             }
-            letterBlock[0] = lastRow;
-            /*
+            letterBlock[0] = lastRowCopy;
+
             //Shift Columns right 1
-            String[] tempCol = new String[numRows];
+            String[] lastCol = new String[numRows];
             for (int row = 0; row < numRows; row++) {
-                tempCol[row] = letterBlock[row][0];
+                lastCol[row] = letterBlock[row][numCols-1];
             }
-            for (int col = 0; col < numRows; col++) {
-                if (letterBlock[0].length > 1) {
-                    tempRow = new String[numRows];
-                    for (int row = 0; row < numRows; row++) {
-                        tempCol[row] = letterBlock
-                    }
-                }
-                if (col++ == numCols) {
-                    int a = 0;
-                    for (String letter : tempCol) {
-                        letterBlock[a][0] = tempCol[a];
-                    }
-                }
-                else {
-                    int a = 0;
-                    for (String letter : tempCol) {
-                        letterBlock[a][col] = tempCol[a];
-                    }
+            String[] lastColCopy = Arrays.copyOf(lastCol, numRows);
+            for (int col = numCols-2; col >= 0; col--) {
+                for (int row = 0; row < numRows; row++) {
+                    letterBlock[row][col+1] = letterBlock[row][col];
                 }
             }
-*/
+            for (int row = 0; row < numRows; row++) {
+                letterBlock[row][0] = lastColCopy[row];
+            }
 
             encryptedMessage += encryptBlock();
             if (message.length() > numRows * numCols) {
@@ -190,10 +177,55 @@ public class Encryptor
             }
         }
         return encryptedMessage;
-
     }
 
     public String superDecryptMessage(String message) {
-        return"";
+        String originalMessage = "";
+        int loopTimes = message.length() / (numRows * numCols);
+        int index = 0;
+        for (int i = 0; i < loopTimes; i++) {
+            String[][] newBlock = new String[numRows][numCols];
+
+            for (int col = 0; col < numCols; col++) {
+                for (int row = 0; row < numRows; row++) {
+                    newBlock[row][col] = message.substring(index, index+1);
+                    index++;
+                }
+            }
+
+            //Shift Columns right 1
+            String[] firstCol = new String[numRows];
+            for (int row = 0; row < numRows; row++) {
+                firstCol[row] = newBlock[row][0];
+            }
+            String[] firstColCopy = Arrays.copyOf(firstCol, numRows);
+            for (int col = 0; col < numCols-1; col++) {
+                for (int row = 0; row < numRows; row++) {
+                    newBlock[row][col] = newBlock[row][col+1];
+                }
+            }
+            for (int row = 0; row < numRows; row++) {
+                newBlock[row][numCols-1] = firstColCopy[row];
+            }
+
+            //Shift Rows up 1
+            String[] firstRowCopy = Arrays.copyOf(newBlock[0], numCols);
+            for (int row = 0; row < numRows-1; row++) {
+                for (int col = 0; col < numCols; col++) {
+                    newBlock[row][col] = newBlock[row+1][col];
+                }
+            }
+            newBlock[numRows-1] = firstRowCopy;
+
+            for (String[] row : newBlock) {
+                for (String character : row) {
+                    originalMessage += character;
+                }
+            }
+        }
+        while (originalMessage.charAt(originalMessage.length()-1) == 'A') {
+            originalMessage = originalMessage.substring(0, originalMessage.length()-1);
+        }
+        return originalMessage;
     }
 }
